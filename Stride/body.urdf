@@ -1,0 +1,485 @@
+<?xml version="1.0" ?>
+<robot name="REX" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find REX_description)/urdf/materials.xacro" />
+<xacro:include filename="$(find REX_description)/urdf/REX.trans" />
+<xacro:include filename="$(find REX_description)/urdf/REX.gazebo" />
+
+<material name="yellow">
+  <color rgba="0.960784 0.666667 0.152941 1"/>
+  </material>
+
+<material name="black">
+  <color rgba="0 0 0 1"/>
+</material>
+
+<material name="red">
+  <color rgba="0.8 0 0 1"/>
+</material>
+
+<link name="base_link">
+  <inertial>
+    <origin xyz="4.3120809249783945e-07 -0.002147732163515349 -0.02204770406068121" rpy="0 0 0"/>
+    <mass value="18.166946756265844"/>
+    <inertia ixx="0.171107" iyy="0.186254" izz="0.033576" ixy="0.0" iyz="-0.000305" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="yellow"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="fr_motor_1">
+  <inertial>
+    <origin xyz="-0.005768216716589079 -0.009909326541267308 0.030058677479947823" rpy="0 0 0"/>
+    <mass value="0.6398393267480108"/>
+    <inertia ixx="0.000272" iyy="0.000224" izz="0.000163" ixy="2e-06" iyz="3e-06" ixz="-2e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.057 -0.004647 -0.057101" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/fr_motor_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="black"/>
+  </visual>
+  <collision>
+    <origin xyz="0.057 -0.004647 -0.057101" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/fr_motor_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="lf_motor_1">
+  <inertial>
+    <origin xyz="0.005768216716588968 -0.009909326541267364 0.030058677480099036" rpy="0 0 0"/>
+    <mass value="0.6398393267480068"/>
+    <inertia ixx="0.000272" iyy="0.000224" izz="0.000163" ixy="-2e-06" iyz="3e-06" ixz="2e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.057 -0.004647 -0.057101" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lf_motor_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="black"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.057 -0.004647 -0.057101" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lf_motor_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="lr_motor_1">
+  <inertial>
+    <origin xyz="0.005768216716588996 -0.009909326541268098 -0.03048651188958061" rpy="0 0 0"/>
+    <mass value="0.6398393267480067"/>
+    <inertia ixx="0.000272" iyy="0.000224" izz="0.000163" ixy="-2e-06" iyz="-0.0" ixz="3e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.057 -0.004647 0.102199" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lr_motor_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="black"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.057 -0.004647 0.102199" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lr_motor_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="rr_motor_1">
+  <inertial>
+    <origin xyz="-0.005768216716589093 -0.009909326541268037 -0.03048651188973185" rpy="0 0 0"/>
+    <mass value="0.6398393267480106"/>
+    <inertia ixx="0.000272" iyy="0.000224" izz="0.000163" ixy="2e-06" iyz="-0.0" ixz="-3e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.057 -0.004647 0.102199" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rr_motor_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="black"/>
+  </visual>
+  <collision>
+    <origin xyz="0.057 -0.004647 0.102199" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rr_motor_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="rf_femur_1">
+  <inertial>
+    <origin xyz="-0.009181067698290121 -0.01419837237601456 -0.03900967383886363" rpy="0 0 0"/>
+    <mass value="0.3339508505480848"/>
+    <inertia ixx="0.000356" iyy="0.000312" izz="6e-05" ixy="1e-06" iyz="-0.000106" ixz="2e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.0845 -0.004447 -0.077501" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rf_femur_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="yellow"/>
+  </visual>
+  <collision>
+    <origin xyz="0.0845 -0.004447 -0.077501" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rf_femur_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="lf_femur_1">
+  <inertial>
+    <origin xyz="0.009181067699383483 -0.014198372361084937 -0.03900967376839325" rpy="0 0 0"/>
+    <mass value="0.3339508485314835"/>
+    <inertia ixx="0.000356" iyy="0.000312" izz="6e-05" ixy="-1e-06" iyz="-0.000106" ixz="-2e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0845 -0.004447 -0.077501" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lf_femur_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="yellow"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0845 -0.004447 -0.077501" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lf_femur_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="lr_femur_1">
+  <inertial>
+    <origin xyz="0.009181067699383427 -0.01419837236108571 -0.03900967376839354" rpy="0 0 0"/>
+    <mass value="0.33395084853148577"/>
+    <inertia ixx="0.000356" iyy="0.000312" izz="6e-05" ixy="-1e-06" iyz="-0.000106" ixz="-2e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0845 -0.004447 0.142799" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lr_femur_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="yellow"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0845 -0.004447 0.142799" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lr_femur_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="rr_femur_1">
+  <inertial>
+    <origin xyz="-0.009181067698290163 -0.014198372376015352 -0.03900967383886386" rpy="0 0 0"/>
+    <mass value="0.3339508505480859"/>
+    <inertia ixx="0.000356" iyy="0.000312" izz="6e-05" ixy="1e-06" iyz="-0.000106" ixz="2e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.0845 -0.004447 0.142799" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rr_femur_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="yellow"/>
+  </visual>
+  <collision>
+    <origin xyz="0.0845 -0.004447 0.142799" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rr_femur_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="rf_tibia_1">
+  <inertial>
+    <origin xyz="-0.008999854104708091 -0.04151389599989262 0.043078419476846805" rpy="0 0 0"/>
+    <mass value="0.20597611551727246"/>
+    <inertia ixx="0.000334" iyy="0.000211" izz="0.000141" ixy="-0.0" iyz="0.000156" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.0845 0.029755 0.016468" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rf_tibia_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="black"/>
+  </visual>
+  <collision>
+    <origin xyz="0.0845 0.029755 0.016468" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rf_tibia_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="lf_tibia_1">
+  <inertial>
+    <origin xyz="0.008999888911071202 -0.041513895999887834 0.043078419476838964" rpy="0 0 0"/>
+    <mass value="0.2059761155172541"/>
+    <inertia ixx="0.000334" iyy="0.000211" izz="0.000141" ixy="0.0" iyz="0.000156" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0845 0.029755 0.016468" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lf_tibia_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="black"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0845 0.029755 0.016468" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lf_tibia_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="lr_tibia_1">
+  <inertial>
+    <origin xyz="0.008999888911083165 -0.041513895999891456 0.04307872222347686" rpy="0 0 0"/>
+    <mass value="0.20597611551726044"/>
+    <inertia ixx="0.000334" iyy="0.000211" izz="0.000141" ixy="0.0" iyz="0.000156" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0845 0.029755 0.236768" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lr_tibia_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="black"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0845 0.029755 0.236768" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lr_tibia_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="rr_tibia_1">
+  <inertial>
+    <origin xyz="-0.008999854104700722 -0.04151389599989447 0.043078722223482746" rpy="0 0 0"/>
+    <mass value="0.20597611551727862"/>
+    <inertia ixx="0.000334" iyy="0.000211" izz="0.000141" ixy="-0.0" iyz="0.000156" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.0845 0.029755 0.236768" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rr_tibia_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="black"/>
+  </visual>
+  <collision>
+    <origin xyz="0.0845 0.029755 0.236768" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rr_tibia_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="rf_foot_1">
+  <inertial>
+    <origin xyz="-0.0007499999999896201 -0.007792969127602287 -1.415424225464923e-07" rpy="0 0 0"/>
+    <mass value="0.14342691351349757"/>
+    <inertia ixx="1.5e-05" iyy="2.4e-05" izz="1.6e-05" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.09275 0.105001 -0.059043" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rf_foot_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="yellow"/>
+  </visual>
+  <collision>
+    <origin xyz="0.09275 0.105001 -0.059043" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rf_foot_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="lf_foot_1">
+  <inertial>
+    <origin xyz="-0.000749999999977255 -0.007792969127604327 -1.4154242249792004e-07" rpy="0 0 0"/>
+    <mass value="0.1434269135134974"/>
+    <inertia ixx="1.5e-05" iyy="2.4e-05" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.09425 0.105001 -0.059043" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lf_foot_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="yellow"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.09425 0.105001 -0.059043" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lf_foot_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="lr_foot_1">
+  <inertial>
+    <origin xyz="-0.0007499999999796281 -0.007792969127604868 -1.4154242244934778e-07" rpy="0 0 0"/>
+    <mass value="0.1434269135134975"/>
+    <inertia ixx="1.5e-05" iyy="2.4e-05" izz="1.6e-05" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.09425 0.105001 0.161257" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lr_foot_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="yellow"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.09425 0.105001 0.161257" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/lr_foot_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="rr_foot_1">
+  <inertial>
+    <origin xyz="-0.000749999999989176 -0.007792969127602745 -1.4154242236608106e-07" rpy="0 0 0"/>
+    <mass value="0.14342691351349754"/>
+    <inertia ixx="1.5e-05" iyy="2.4e-05" izz="1.6e-05" ixy="-0.0" iyz="-0.0" ixz="-0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="0.09275 0.105001 0.161257" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rr_foot_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="yellow"/>
+  </visual>
+  <collision>
+    <origin xyz="0.09275 0.105001 0.161257" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/rr_foot_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="Revolute fr_shoulder" type="continuous">
+  <origin xyz="-0.057 0.004647 0.057101" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="fr_motor_1"/>
+  <axis xyz="0.0 0.0 1.0"/>
+</joint>
+
+<joint name="Revolute fl_shoulder" type="continuous">
+  <origin xyz="0.057 0.004647 0.057101" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="lf_motor_1"/>
+  <axis xyz="0.0 -0.0 -1.0"/>
+</joint>
+
+<joint name="Revolute rr_shoulder" type="continuous">
+  <origin xyz="-0.057 0.004647 -0.102199" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="rr_motor_1"/>
+  <axis xyz="0.0 -0.0 -1.0"/>
+</joint>
+
+<joint name="Revolute rl_shoulder" type="continuous">
+  <origin xyz="0.057 0.004647 -0.102199" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="lr_motor_1"/>
+  <axis xyz="-0.0 0.0 1.0"/>
+</joint>
+
+<joint name="Revolute fr_femur" type="continuous">
+  <origin xyz="-0.0275 -0.0002 0.0204" rpy="0 0 0"/>
+  <parent link="fr_motor_1"/>
+  <child link="rf_femur_1"/>
+  <axis xyz="1.0 0.0 0.0"/>
+</joint>
+
+<joint name="Revolute fl_femur" type="continuous">
+  <origin xyz="0.0275 -0.0002 0.0204" rpy="0 0 0"/>
+  <parent link="lf_motor_1"/>
+  <child link="lf_femur_1"/>
+  <axis xyz="1.0 0.0 0.0"/>
+</joint>
+
+<joint name="Revolute rr_femur" type="continuous">
+  <origin xyz="-0.0275 -0.0002 -0.0406" rpy="0 0 0"/>
+  <parent link="rr_motor_1"/>
+  <child link="rr_femur_1"/>
+  <axis xyz="1.0 0.0 0.0"/>
+</joint>
+
+<joint name="Revolute rl_femur" type="continuous">
+  <origin xyz="0.0275 -0.0002 -0.0406" rpy="0 0 0"/>
+  <parent link="lr_motor_1"/>
+  <child link="lr_femur_1"/>
+  <axis xyz="1.0 0.0 0.0"/>
+</joint>
+
+<joint name="Revolute fr_tibia" type="continuous">
+  <origin xyz="0.0 -0.034202 -0.093969" rpy="0 0 0"/>
+  <parent link="rf_femur_1"/>
+  <child link="rf_tibia_1"/>
+  <axis xyz="1.0 -0.0 0.0"/>
+</joint>
+
+<joint name="Revolute fl_tibia" type="continuous">
+  <origin xyz="0.0 -0.034202 -0.093969" rpy="0 0 0"/>
+  <parent link="lf_femur_1"/>
+  <child link="lf_tibia_1"/>
+  <axis xyz="-1.0 0.0 0.0"/>
+</joint>
+
+<joint name="Revolute rr_tibia" type="continuous">
+  <origin xyz="0.0 -0.034202 -0.093969" rpy="0 0 0"/>
+  <parent link="rr_femur_1"/>
+  <child link="rr_tibia_1"/>
+  <axis xyz="1.0 -0.0 -0.0"/>
+</joint>
+
+<joint name="Revolute rl_tibia" type="continuous">
+  <origin xyz="0.0 -0.034202 -0.093969" rpy="0 0 0"/>
+  <parent link="lr_femur_1"/>
+  <child link="lr_tibia_1"/>
+  <axis xyz="-1.0 0.0 0.0"/>
+</joint>
+
+<joint name="Rigid fr" type="fixed">
+  <origin xyz="-0.00825 -0.075246 0.075511" rpy="0 0 0"/>
+  <parent link="rf_tibia_1"/>
+  <child link="rf_foot_1"/>
+</joint>
+
+<joint name="Rigid fl" type="fixed">
+  <origin xyz="0.00975 -0.075246 0.075511" rpy="0 0 0"/>
+  <parent link="lf_tibia_1"/>
+  <child link="lf_foot_1"/>
+</joint>
+
+<joint name="Rigid rr" type="fixed">
+  <origin xyz="-0.00825 -0.075246 0.075511" rpy="0 0 0"/>
+  <parent link="rr_tibia_1"/>
+  <child link="rr_foot_1"/>
+</joint>
+
+<joint name="Rigid rl" type="fixed">
+  <origin xyz="0.00975 -0.075246 0.075511" rpy="0 0 0"/>
+  <parent link="lr_tibia_1"/>
+  <child link="lr_foot_1"/>
+</joint>
+
+</robot>
