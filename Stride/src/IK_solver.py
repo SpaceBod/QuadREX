@@ -35,20 +35,35 @@ def checkdomain(D):
 #             0 , -np.pi/4. , np.pi/2., 0 ]#FR
 # IK equations written in pybullet frame.
 def solve_FR(coord, coxa, femur, tibia):
+    # D = (
+    #     coord[1] ** 2 + coord[2] ** 2 - coxa**2 + coord[0] ** 2 - femur**2 - tibia**2
+    # ) / (
+    #     2 * tibia * femur
+    # )  # siempre <1
+    # D = checkdomain(D)
+    # gamma = np.arctan2(np.sqrt(1 - D**2), D)
+    # tetta = -np.arctan2(-coord[2], coord[1]) - np.arctan2(
+    #     np.sqrt(coord[1] ** 2 + coord[2] ** 2 - coxa**2), -coxa
+    # )
+    # alpha = np.arctan2(
+    #     coord[0], np.sqrt(coord[1] ** 2 + coord[2] ** 2 - coxa**2)
+    # ) - np.arctan2(tibia * np.sin(gamma), femur + tibia * np.cos(gamma))
+    # angles = np.array([tetta, alpha + np.pi / 4.0, gamma - np.pi / 2.0])
+    # return angles
     D = (
         coord[1] ** 2 + coord[2] ** 2 - coxa**2 + coord[0] ** 2 - femur**2 - tibia**2
     ) / (
         2 * tibia * femur
     )  # siempre <1
     D = checkdomain(D)
-    gamma = np.arctan2(np.sqrt(1 - D**2), D)
-    tetta = -np.arctan2(-coord[2], coord[1]) - np.arctan2(
-        np.sqrt(coord[1] ** 2 + coord[2] ** 2 - coxa**2), -coxa
+    gamma = np.arctan2(-np.sqrt(1 - D**2), D)
+    tetta = -np.arctan2(-coord[2], -coord[1]) - np.arctan2(
+        np.sqrt(coord[1] ** 2 + coord[2] ** 2 - coxa**2), coxa
     )
     alpha = np.arctan2(
         coord[0], np.sqrt(coord[1] ** 2 + coord[2] ** 2 - coxa**2)
     ) - np.arctan2(tibia * np.sin(gamma), femur + tibia * np.cos(gamma))
-    angles = np.array([tetta, alpha + np.pi / 4.0, gamma - np.pi / 2.0])
+    angles = np.array([tetta, alpha - np.pi / 4.0, gamma + np.pi / 2.0])
     return angles
 
 
@@ -90,17 +105,17 @@ def solve_BR(coord, coxa, femur, tibia):
 
 def solve_BL(coord, coxa, femur, tibia):
     D = (
-        coord[1] ** 2 + coord[2] ** 2 - coxa**2 + coord[0] ** 2 - femur**2 - tibia**2
+        coord[1] ** 2 + (-coord[2]) ** 2 - coxa**2 + coord[0] ** 2 - femur**2 - tibia**2
     ) / (
         2 * tibia * femur
     )  # siempre <1
     D = checkdomain(D)
-    gamma = np.arctan2(-np.sqrt(1 - D**2), D)
-    tetta = -np.arctan2(-coord[2], coord[1]) - np.arctan2(
-        np.sqrt(coord[1] ** 2 + coord[2] ** 2 - coxa**2), coxa
+    gamma = np.arctan2(np.sqrt(1 - D**2), D)
+    tetta = -np.arctan2(-coord[2], -coord[1]) - np.arctan2(
+        np.sqrt(coord[1] ** 2 + coord[2] ** 2 - coxa**2), -coxa
     )
     alpha = np.arctan2(
-        coord[0], np.sqrt(coord[1] ** 2 + coord[2] ** 2 - coxa**2)
+        coord[0], np.sqrt(coord[1] ** 2 + (-coord[2]) ** 2 - coxa**2)
     ) - np.arctan2(tibia * np.sin(gamma), femur + tibia * np.cos(gamma))
-    angles = np.array([tetta, alpha - np.pi / 4.0, gamma + np.pi / 2.0])
+    angles = np.array([tetta, alpha + np.pi / 4.0, gamma - np.pi / 2.0])
     return angles

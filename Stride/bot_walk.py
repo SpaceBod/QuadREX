@@ -39,7 +39,7 @@ def robot_init(dt, body_pos, fixed=False):
     body_id = p.loadURDF(
         "body.urdf",
         body_pos,
-        useFixedBase=True,
+        useFixedBase=fixed,
         baseOrientation=[1, 1, 1, 1],
     )
     joint_ids = []
@@ -58,7 +58,7 @@ def robot_init(dt, body_pos, fixed=False):
 
 def robot_stepsim(body_id, body_pos, body_orn, body2feet):
     # robot properties
-    maxForce = 2  # N/m
+    maxForce = 5  # N/m
 
     #####################################################################################
     #####   kinematics Model: Input body orientation, deviation and foot position    ####
@@ -123,7 +123,7 @@ if __name__ == "__main__":
     )
 
     offset = np.array(
-        [0.5, 0.5, 0.0, 0.0]
+        [0.5, 0.0, 0.0, 0.5]
     )  # defines the offset between each foot step in this order (FR,FL,BR,BL)
     T = 0.5  # period of time (in seconds) of every step
 
@@ -134,7 +134,6 @@ if __name__ == "__main__":
         pos, orn, L, angle, Lrot, T, sda, offset = pybulletDebug.cam_and_robotstates(
             bodyId
         )  # takes input from the user
-
         bodytoFeet = trot.loop(
             L, angle, Lrot, T, offset, bodytoFeet0, sda
         )  # calculates the feet coord for gait, defining length of the step and direction (0º -> forward; 180º -> backward)

@@ -20,11 +20,7 @@ from . import geometrics
 
 class robotKinematics:
     def __init__(self):
-        self.targetAngs = np.matrix(
-            [0, 0, -0, 0, 0, 0, -0, 0, 0, 0, -0, 0, 0, 0, -0, 0]  # BR  # BL  # FL
-        )  # FR
-
-        """in meter """
+        """in meter"""
         self.L = 0.18  # length of robot joints
         self.W = 0.064  # width of robot joints
         self.coxa = 0.0375  # coxa length
