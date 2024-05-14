@@ -2,11 +2,11 @@ import time
 import numpy as np
 import pybullet as p
 import pybullet_data
-import csv
+import math
 
 from src.kinematic_model import robotKinematics
 from src.pybullet_debugger import pybulletDebug
-from src.gaitPlanner import trotGait
+from src.gaitPlanner import TrotGait
 
 
 def rendering(render):
@@ -39,7 +39,7 @@ def robot_init(dt, body_pos, fixed=False):
     body_id = p.loadURDF(
         "body.urdf",
         body_pos,
-        useFixedBase=fixed,
+        useFixedBase=True,
         baseOrientation=[1, 1, 1, 1],
     )
     joint_ids = []
@@ -69,7 +69,11 @@ def robot_stepsim(body_id, body_pos, body_orn, body2feet):
     # move movable joints
     for i in range(3):
         p.setJointMotorControl2(
-            body_id, i, p.POSITION_CONTROL, targetPosition=fr_angles[i], force=maxForce
+            body_id,
+            i,
+            p.POSITION_CONTROL,
+            targetPosition=fr_angles[i],
+            force=maxForce
         )
         p.setJointMotorControl2(
             body_id,
@@ -107,7 +111,7 @@ if __name__ == "__main__":
     bodyId, jointIds = robot_init(dt=dT, body_pos=[0, 0, 0.18], fixed=False)
     pybulletDebug = pybulletDebug()
     robotKinematics = robotKinematics()
-    trot = trotGait()
+    trot = TrotGait()
 
     """initial foot position"""
     # foot separation (Ydist = 0.16 -> theta =0) and distance to floor
@@ -127,7 +131,7 @@ if __name__ == "__main__":
     )  # defines the offset between each foot step in this order (FR,FL,BR,BL)
     T = 0.5  # period of time (in seconds) of every step
 
-    N_steps = 50000
+    N_steps = 100000
 
     for k_ in range(0, N_steps):
 
