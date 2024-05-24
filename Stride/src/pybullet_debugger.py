@@ -3,6 +3,12 @@ import time
 import numpy as np
 import sys
 
+def round_to_zero(val, epsilon=1e-7):
+    """Round small values to zero based on a threshold epsilon."""
+    if abs(val) < epsilon:
+        return 0.
+    return val
+
 class pybulletDebug:
     def __init__(self):
         #Camera paramers to be able to yaw pitch and zoom the camera (Focus remains on the robot) 
@@ -28,33 +34,42 @@ class pybulletDebug:
     
     def cam_and_robotstates(self , boxId):
         #orientation of camara
+        direction=0
         cubePos, cubeOrn = p.getBasePositionAndOrientation(boxId)
         p.resetDebugVisualizerCamera( cameraDistance=self.cdist, cameraYaw=self.cyaw, cameraPitch=self.cpitch, cameraTargetPosition=cubePos)
         keys = p.getKeyboardEvents()
         #Keys to change camera
-        if keys.get(104):  #H
-            self.cyaw+=1
-        if keys.get(102):  #F
+        if keys.get(65296): #RIGHT
             self.cyaw-=1
-        if keys.get(116):  #T
-            self.cpitch+=1
-        if keys.get(103):  #G
+        if keys.get(65295): #LEFT
+            self.cyaw+=1
+        if keys.get(65297): #UP    
             self.cpitch-=1
-        if keys.get(122):  #Z
+        if keys.get(65298): #DOWN
+            self.cpitch+=1
+        if keys.get(45):  #+
             self.cdist+=0.01
-        if keys.get(120):  #X
+        if keys.get(61):  #-
             self.cdist-=0.01
+        if keys.get(44):  #+
+            l_add = 0.2
+        if keys.get(46):  #-
+            l_add = 0.2
+            direction = 180
         if keys.get(27):  #ESC
             p.disconnect()
             time.sleep(2)
-            
+        if keys:
+            for key, status in keys.items():
+                if status & p.KEY_IS_DOWN:
+                    print(f"Key {key} pressed")
         #   sys.exit()
         #read position from debug
         pos = np.array([p.readUserDebugParameter(self.xId),p.readUserDebugParameter(self.yId), p.readUserDebugParameter(self.zId)])
         orn = np.array([p.readUserDebugParameter(self.rollId),p.readUserDebugParameter(self.pitchId), p.readUserDebugParameter(self.yawId)])
-        L = p.readUserDebugParameter(self.LId)
+        L = round_to_zero(p.readUserDebugParameter(self.LId))
         Lrot = p.readUserDebugParameter(self.LrotId)
-        angle = p.readUserDebugParameter(self.angleId)
+        angle = p.readUserDebugParameter(self.angleId) + direction
         T = p.readUserDebugParameter(self.periodId)
         trot=p.readUserDebugParameter(self.trotId)
         bound=p.readUserDebugParameter(self.boundId)

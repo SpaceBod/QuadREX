@@ -2,11 +2,11 @@ import time
 import numpy as np
 import pybullet as p
 import pybullet_data
-import csv
+import math
 
-from src.kinematic_model import robotKinematics
+from src.kinematic_model import RobotKinematics
 from src.pybullet_debugger import pybulletDebug
-from src.gaitPlanner import trotGait
+from src.gaitPlanner import TrotGait
 
 
 def rendering(render):
@@ -16,8 +16,18 @@ def rendering(render):
 
 
 def robot_init(dt, body_pos, fixed=False):
+    """
+    Initialize the robot in the PyBullet simulation environment.
+
+    Parameters:
+    dt (float): Time step for the simulation.
+    body_pos (list): Initial position of the robot body [x, y, z].
+    fixed (bool): Whether the robot body is fixed in place.
+
+    Returns:
+    tuple: Body ID and list of joint IDs.
+    """
     physicsClient = p.connect(p.GUI)  # or p.DIRECT for non-graphical version
-    # turn off rendering while loading the models
     rendering(0)
 
     p.setGravity(0, 0, -2)
@@ -32,10 +42,12 @@ def robot_init(dt, body_pos, fixed=False):
         contactERP=0.0,
         frictionERP=0.0,
     )
-    # add floor
-    p.setAdditionalSearchPath(pybullet_data.getDataPath())  # optionally
+
+    # Add floor
+    p.setAdditionalSearchPath(pybullet_data.getDataPath())
     p.loadURDF("plane.urdf")
-    # add robot
+
+    # Add robot
     body_id = p.loadURDF(
         "body.urdf",
         body_pos,
@@ -44,54 +56,42 @@ def robot_init(dt, body_pos, fixed=False):
     )
     joint_ids = []
 
-    # robot properties
+    # Robot properties
     maxVel = 3.703  # rad/s
     for j in range(p.getNumJoints(body_id)):
-        p.changeDynamics(
-            body_id, j, lateralFriction=1e-5, linearDamping=0, angularDamping=0
-        )
+        p.changeDynamics(body_id, j, lateralFriction=1e-5, linearDamping=0, angularDamping=0)
         p.changeDynamics(body_id, j, maxJointVelocity=maxVel)
         joint_ids.append(p.getJointInfo(body_id, j))
+
     rendering(1)
     return body_id, joint_ids
 
 
 def robot_stepsim(body_id, body_pos, body_orn, body2feet):
-    # robot properties
+    """
+    Simulate one step of the robot in the PyBullet environment.
+
+    Parameters:
+    body_id (int): ID of the robot body in the simulation.
+    body_pos (np.array): Position of the robot body [x, y, z].
+    body_orn (np.array): Orientation of the robot body [roll, pitch, yaw].
+    body2feet (np.array): Current positions of the feet relative to the body frame.
+
+    Returns:
+    np.array: Updated positions of the feet relative to the body frame.
+    """
     maxForce = 5  # N/m
 
-    #####################################################################################
-    #####   kinematics Model: Input body orientation, deviation and foot position    ####
-    #####   and get the angles, neccesary to reach that position, for every joint    ####
-    fr_angles, fl_angles, br_angles, bl_angles, body2feet_ = robotKinematics.solve(
-        body_orn, body_pos, body2feet
-    )
-    # move movable joints
+    # Kinematics Model
+    kinematics = RobotKinematics()
+    fr_angles, fl_angles, br_angles, bl_angles, body2feet_ = kinematics.solve(body_orn, body_pos, body2feet)
+
+    # Move movable joints
     for i in range(3):
-        p.setJointMotorControl2(
-            body_id, i, p.POSITION_CONTROL, targetPosition=fr_angles[i], force=maxForce
-        )
-        p.setJointMotorControl2(
-            body_id,
-            4 + i,
-            p.POSITION_CONTROL,
-            targetPosition=fl_angles[i],
-            force=maxForce,
-        )
-        p.setJointMotorControl2(
-            body_id,
-            8 + i,
-            p.POSITION_CONTROL,
-            targetPosition=br_angles[i],
-            force=maxForce,
-        )
-        p.setJointMotorControl2(
-            body_id,
-            12 + i,
-            p.POSITION_CONTROL,
-            targetPosition=bl_angles[i],
-            force=maxForce,
-        )
+        p.setJointMotorControl2(body_id, i, p.POSITION_CONTROL, targetPosition=fr_angles[i], force=maxForce)
+        p.setJointMotorControl2(body_id, 4 + i, p.POSITION_CONTROL, targetPosition=fl_angles[i], force=maxForce)
+        p.setJointMotorControl2(body_id, 8 + i, p.POSITION_CONTROL, targetPosition=br_angles[i], force=maxForce)
+        p.setJointMotorControl2(body_id, 12 + i, p.POSITION_CONTROL, targetPosition=bl_angles[i], force=maxForce)
 
     p.stepSimulation()
 
@@ -99,6 +99,7 @@ def robot_stepsim(body_id, body_pos, body_orn, body2feet):
 
 
 def robot_quit():
+    """Disconnect from the PyBullet simulation."""
     p.disconnect()
 
 
@@ -106,40 +107,27 @@ if __name__ == "__main__":
     dT = 0.005
     bodyId, jointIds = robot_init(dt=dT, body_pos=[0, 0, 0.18], fixed=False)
     pybulletDebug = pybulletDebug()
-    robotKinematics = robotKinematics()
-    trot = trotGait()
+    robotKinematics = RobotKinematics()
+    trot = TrotGait()
 
-    """initial foot position"""
-    # foot separation (Ydist = 0.16 -> theta =0) and distance to floor
+    # Initial foot position
     Xdist, Ydist, height = 0.18, 0.15, 0.10
-    # body frame to foot frame vector
-    bodytoFeet0 = np.matrix(
-        [
-            [Xdist / 2.0, -Ydist / 2.0, height],
-            [Xdist / 2.0, Ydist / 2.0, height],
-            [-Xdist / 2.0, -Ydist / 2.0, height],
-            [-Xdist / 2.0, Ydist / 2.0, height],
-        ]
-    )
+    bodytoFeet0 = np.array([
+        [Xdist / 2.0, -Ydist / 2.0, height],
+        [Xdist / 2.0, Ydist / 2.0, height],
+        [-Xdist / 2.0, -Ydist / 2.0, height],
+        [-Xdist / 2.0, Ydist / 2.0, height],
+    ])
 
-    offset = np.array(
-        [0.5, 0.0, 0.0, 0.5]
-    )  # defines the offset between each foot step in this order (FR,FL,BR,BL)
-    T = 0.5  # period of time (in seconds) of every step
+    offset = np.array([0.5, 0.0, 0.0, 0.5])  # Offset between each foot step (FR, FL, BR, BL)
+    T = 0.5  # Period of time (in seconds) for each step
 
-    N_steps = 50000
+    N_steps = 100000
 
-    for k_ in range(0, N_steps):
+    for k_ in range(N_steps):
+        pos, orn, L, angle, Lrot, T, sda, offset = pybulletDebug.cam_and_robotstates(bodyId)  # User input
+        bodytoFeet = trot.loop(L, angle, Lrot, T, offset, bodytoFeet0, sda)  # Calculate feet coordinates for gait
 
-        pos, orn, L, angle, Lrot, T, sda, offset = pybulletDebug.cam_and_robotstates(
-            bodyId
-        )  # takes input from the user
-        bodytoFeet = trot.loop(
-            L, angle, Lrot, T, offset, bodytoFeet0, sda
-        )  # calculates the feet coord for gait, defining length of the step and direction (0º -> forward; 180º -> backward)
-
-        robot_stepsim(
-            bodyId, pos, orn, bodytoFeet
-        )  # simulates the robot to the target position
+        robot_stepsim(bodyId, pos, orn, bodytoFeet)  # Simulate robot to the target position
 
     robot_quit()
