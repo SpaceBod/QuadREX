@@ -10,16 +10,16 @@ import requests
 
 
 class PorcupineWakeWordDetector:
-    def __init__(self, keyword_path, sensitivity=0.7):
+    def __init__(self, keyword_paths, sensitivity=0.7):
         load_dotenv()
         self.access_key = os.getenv("PORCUPINE_KEY")
-        self.keyword_path = keyword_path
-        self.sensitivity = sensitivity
+        self.keyword_paths = keyword_paths
+        self.sensitivity = [sensitivity] * len(keyword_paths)
 
         self.porcupine = pvporcupine.create(
             access_key=self.access_key,
-            keyword_paths=[self.keyword_path],
-            sensitivities=[self.sensitivity],
+            keyword_paths=self.keyword_paths,
+            sensitivities=self.sensitivity,
         )
         self.pa = pyaudio.PyAudio()
         self.audio_stream = self.pa.open(
@@ -41,12 +41,18 @@ class PorcupineWakeWordDetector:
 
                 keyword_index = self.porcupine.process(pcm)
                 if keyword_index >= 0:
-                    print("Wake word detected!")
+                    print(f"Wake word detected! Index: {keyword_index}")
+                    self.play_sound("assets/sfx/beep.mp3")
                     break
         except KeyboardInterrupt:
             pass
-        finally:
-            self.cleanup()
+
+    def play_sound(self, file_path):
+        pygame.mixer.init()
+        pygame.mixer.music.load(file_path)
+        pygame.mixer.music.play()
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
 
     def cleanup(self):
         if self.porcupine is not None:
@@ -65,6 +71,7 @@ class GoogleSpeechToText:
         with sr.Microphone() as source:
             print("Listening for speech...")
             audio = self.recognizer.listen(source)
+            self.play_sound("assets/sfx/beep.mp3")
             try:
                 text = self.recognizer.recognize_google(audio)
                 print("You said: " + text)
@@ -73,12 +80,17 @@ class GoogleSpeechToText:
                 print("Google Speech Recognition could not understand audio")
             except sr.RequestError as e:
                 print(
-                    "Could not request results from Google Speech Recognition service; {0}".format(
-                        e
-                    )
+                    f"Could not request results from Google Speech Recognition service; {e}"
                 )
 
         return None
+
+    def play_sound(self, file_path):
+        pygame.mixer.init()
+        pygame.mixer.music.load(file_path)
+        pygame.mixer.music.play()
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
 
 
 class ElevenLabsTTS:
@@ -128,18 +140,22 @@ def hash_text(text):
 
 
 if __name__ == "__main__":
-    keyword_path = "./assets/models/windows.ppn"
-    detector = PorcupineWakeWordDetector(keyword_path=keyword_path)
-    detector.listen_for_wake_word()
+    keyword_paths = ["./assets/models/windows.ppn", "./assets/models/windows-rex.ppn"]
+    detector = PorcupineWakeWordDetector(keyword_paths=keyword_paths)
 
-    stt = GoogleSpeechToText()
-    spoken_text = stt.listen_and_transcribe()
+    while True:
+        detector.listen_for_wake_word()
 
-    if spoken_text:
-        tts = ElevenLabsTTS()
-        hashed_filename = hash_text(spoken_text)
-        output_file = os.path.join(tts.output_folder, f"{hashed_filename}.mp3")
+        stt = GoogleSpeechToText()
+        spoken_text = stt.listen_and_transcribe()
 
-        if not os.path.exists(output_file):
-            tts.generate_audio(spoken_text, output_file)
-        tts.play_audio(output_file)
+        if spoken_text:
+            tts = ElevenLabsTTS()
+            hashed_filename = hash_text(spoken_text)
+            output_file = os.path.join(tts.output_folder, f"{hashed_filename}.mp3")
+
+            if not os.path.exists(output_file):
+                tts.generate_audio(spoken_text, output_file)
+            tts.play_audio(output_file)
+
+        print("Conversation ended. Listening for wake word again...")
