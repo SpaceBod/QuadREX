@@ -15,7 +15,7 @@ class ElevenLabsTTS:
         load_dotenv()
         self.api_key = os.getenv("XI_API_KEY")
         self.voice_id = os.getenv("XI_VOICE_ID")
-        self.output_folder = "mp3s"
+        self.output_folder = "assets/audio"
         os.makedirs(self.output_folder, exist_ok=True)
 
     def generate_audio(self, text, file_path):

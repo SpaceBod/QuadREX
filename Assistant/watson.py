@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from ibm_watson import AssistantV2
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from text2speech import ElevenLabsTTS, hash_text
+import requests
 
 
 class WatsonAssistant:
@@ -13,6 +14,8 @@ class WatsonAssistant:
         self.api_key = os.getenv("WATSON_API_KEY")
         self.service_url = os.getenv("WATSON_SERVICE_URL")
         self.assistant_id = os.getenv("WATSON_ASSISTANT_ID")
+        self.thingspeak_api_key = os.getenv("THINGSPEAK_KEY")
+        self.thingspeak_channel_id = os.getenv("THINGSPEAK_ID")
 
         if not self.api_key or not self.service_url or not self.assistant_id:
             raise ValueError(
@@ -35,6 +38,67 @@ class WatsonAssistant:
             .startswith("do you want to continue with the previous topic")
         )
 
+    def publish_to_thingspeak(self, details):
+        url = f"https://api.thingspeak.com/update.json"
+        payload = {
+            "api_key": self.thingspeak_api_key,
+            "field1": details[0],
+            "field2": details[1],
+            "field3": details[2],
+            "field4": details[3],
+            "field5": details[4],
+            "field6": details[5],
+        }
+        response = requests.post(url, data=payload)
+        if response.status_code == 200:
+            print("Data successfully published to ThingSpeak.")
+        else:
+            print("Failed to publish data to ThingSpeak:", response.text)
+
+    def checkData(self, response, session_id):
+        required_keys = [
+            "Client_Age",
+            "Client_Name",
+            "Symptom_Details",
+            "Symptom_Intensity",
+            "Symptom_Time",
+            "Symptom_Type",
+        ]
+
+        context = response.get("context", {})
+        skills = context.get("skills", {})
+        actions_skill = skills.get("actions skill", {})
+        skill_variables = actions_skill.get("skill_variables", {})
+
+        # Extract and check if all required values are present
+        data = {key: skill_variables.get(key, None) for key in required_keys}
+
+        if all(value is not None for value in data.values()):
+
+            sessionDetails = [
+                {data["Symptom_Time"]["value"]},
+                {data["Client_Name"]},
+                {data["Client_Age"]},
+                {data["Symptom_Type"]},
+                {data["Symptom_Details"]},
+                {data["Symptom_Intensity"]},
+            ]
+
+            print(sessionDetails)
+            self.publish_to_thingspeak(sessionDetails)
+
+            # Close the current session and create a new one
+            self.assistant.delete_session(
+                assistant_id=self.assistant_id, session_id=session_id
+            )
+            new_session_id = self.assistant.create_session(
+                assistant_id=self.assistant_id
+            ).get_result()["session_id"]
+            print("Session reset. New session ID:", new_session_id)
+            return new_session_id
+
+        return session_id
+
     def interact(self):
         print("Type 'exit' to end the conversation.")
         session_id = self.assistant.create_session(
@@ -51,8 +115,15 @@ class WatsonAssistant:
                 response = self.assistant.message(
                     assistant_id=self.assistant_id,
                     session_id=session_id,
-                    input={"message_type": "text", "text": user_input},
+                    input={
+                        "message_type": "text",
+                        "text": user_input,
+                        "options": {"return_context": True},
+                    },
                 ).get_result()
+
+                # Extract data from conversation and check it
+                session_id = self.checkData(response, session_id)
 
                 output = response["output"]["generic"]
                 for message in output:
