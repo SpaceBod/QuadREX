@@ -51,11 +51,12 @@ class RobotKinematics:
         _BLcoord = geometrics.transform(BLcoord, undoOrn, undoPos)
 
         #        print(_FRcoord,_BRcoord)
-        FR_angles = IK_solver.solveFR(_FRcoord, self.coxa, self.femur, self.tibia)
-        FL_angles = IK_solver.solveFL(_FLcoord, self.coxa, self.femur, self.tibia)
-        BR_angles = IK_solver.solveBR(_BRcoord, self.coxa, self.femur, self.tibia)
-        BL_angles = IK_solver.solveBL(_BLcoord, self.coxa, self.femur, self.tibia)
+        FR_angles, valid1 = IK_solver.solveFR(_FRcoord, self.coxa, self.femur, self.tibia)
+        FL_angles, valid2 = IK_solver.solveFL(_FLcoord, self.coxa, self.femur, self.tibia)
+        BR_angles, valid3 = IK_solver.solveBR(_BRcoord, self.coxa, self.femur, self.tibia)
+        BL_angles, valid4 = IK_solver.solveBL(_BLcoord, self.coxa, self.femur, self.tibia)
 
+        valid = valid1 and valid2 and valid3 and valid4
         _bodytofeetFR = _bodytoFR0 + _FRcoord
         _bodytofeetFL = _bodytoFL0 + _FLcoord
         _bodytofeetBR = _bodytoBR0 + _BRcoord
@@ -69,4 +70,4 @@ class RobotKinematics:
             ]
         )
 
-        return FR_angles, FL_angles, BR_angles, BL_angles, _bodytofeet
+        return FR_angles, FL_angles, BR_angles, BL_angles, _bodytofeet, valid

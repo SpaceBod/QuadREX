@@ -1,6 +1,12 @@
 
+<<<<<<< Updated upstream
 Other/*
 Assistant/.env
 REX/__pycache__/inverseKinematics.cpython-311.pyc
 REX/__pycache__/gait.cpython-311.pyc
 Assistant/__pycache__/text2speech.cpython-311.pyc
+=======
+Stride/.DS_Store
+Stride/src/__pycache__/gaitPlanner.cpython-312.pyc
+.DS_Store
+>>>>>>> Stashed changes
