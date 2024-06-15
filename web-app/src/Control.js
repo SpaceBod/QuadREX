@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTable, useSortBy } from 'react-table';
 
-const ThingSpeakTable = ({ setData, setSelectedEntry }) => {
+const Control = ({ setData, setSelectedEntry }) => {
   const [localData, setLocalData] = useState([]);
 
   const generateCoordinates = () => {
@@ -18,33 +18,39 @@ const ThingSpeakTable = ({ setData, setSelectedEntry }) => {
     return { lat, lng };
   };
 
+  const generateRandomNumber = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  };
+
   useEffect(() => {
-    fetch('https://api.thingspeak.com/channels/2561068/feeds.json?api_key=OE9W4WOACTCIH7U8&results=10')
+    fetch('https://api.thingspeak.com/channels/2530164/feeds.json?api_key=5EZQZMTCQ3EEU314&results=10')
       .then(response => response.json())
       .then(data => {
         const feeds = data.feeds.map((feed, index) => ({
-          time: feed.created_at,
-          name: feed.field2,
-          age: feed.field3,
-          type: feed.field4,
-          details: feed.field5,
-          severity: parseInt(feed.field6, 10),
-          coordinates: generateCoordinates(), // Generate coordinates once
-          id: index, // Adding an ID for React key
+          id: generateRandomNumber(100, 999),
+          name: `REX-${String(index + 1).padStart(2, '0')}`,
+          date: feed.field1,
+          ip: feed.field2,
+          temperature: generateRandomNumber(14, 20),
+          coordinates: generateCoordinates(),
         }));
+        console.log('Fetched Data:', feeds); // Log the fetched data
         setLocalData(feeds);
         setData(feeds); // Pass data to Dashboard
-      });
+      })
+      .catch(error => console.error('Error fetching data:', error));
   }, [setData]);
+
+  useEffect(() => {
+    console.log('Local Data:', localData); // Log localData after it's set
+  }, [localData]);
 
   const columns = React.useMemo(
     () => [
-      { Header: 'Time', accessor: 'time' },
+      { Header: 'ID', accessor: 'id' },
       { Header: 'Name', accessor: 'name' },
-      { Header: 'Age', accessor: 'age' },
-      { Header: 'Type', accessor: 'type' },
-      { Header: 'Details', accessor: 'details' },
-      { Header: 'Severity', accessor: 'severity' },
+      { Header: 'Location', accessor: row => `${row.coordinates?.lat.toFixed(5)}, ${row.coordinates?.lng.toFixed(5)}`, id: 'location' },
+      { Header: 'IP Address', accessor: 'ip' },
     ],
     []
   );
@@ -110,4 +116,4 @@ const ThingSpeakTable = ({ setData, setSelectedEntry }) => {
   );
 };
 
-export default ThingSpeakTable;
+export default Control;

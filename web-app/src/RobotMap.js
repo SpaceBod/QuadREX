@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-const GoogleMap = ({ markersData, selectedEntry }) => {
+const RobotMap = ({ markersData, selectedEntry }) => {
   const mapRef = useRef(null);
   const [map, setMap] = useState(null);
   const markersRef = useRef([]);
@@ -10,7 +10,7 @@ const GoogleMap = ({ markersData, selectedEntry }) => {
 
     const { AdvancedMarkerElement, PinElement } = await window.google.maps.importLibrary('marker');
     const { Map } = await window.google.maps.importLibrary('maps');
-
+    
     return { AdvancedMarkerElement, PinElement, Map };
   };
 
@@ -30,13 +30,6 @@ const GoogleMap = ({ markersData, selectedEntry }) => {
         setMap(mapInstance);
       }
 
-      const getPinColor = (severity) => {
-        if (severity >= 1 && severity <= 3) return '#00FF00'; // Green
-        if (severity >= 4 && severity <= 6) return '#FFA500'; // Orange
-        if (severity >= 7 && severity <= 10) return '#FF0000'; // Red
-        return '#FFFFFF'; // Default color (white)
-      };
-
       if (map) {
         // Clear existing markers
         markersRef.current.forEach(markerObj => markerObj.marker.setMap(null));
@@ -45,17 +38,10 @@ const GoogleMap = ({ markersData, selectedEntry }) => {
         const newMarkers = markersData.map(data => {
           const { lat, lng } = data.coordinates; // Use stored coordinates
 
-          const pinColor = getPinColor(data.severity);
-
-          const pinElement = new PinElement({
-            background: pinColor,
-          });
-
           const marker = new AdvancedMarkerElement({
             position: { lat, lng },
             map,
-            content: pinElement.element,
-            title: `${data.name}\n${data.type}`,
+            title: `${data.name}\n${data.ip}`,
           });
 
           return { marker, data, position: { lat, lng } };
@@ -66,7 +52,7 @@ const GoogleMap = ({ markersData, selectedEntry }) => {
 
       if (selectedEntry && map) {
         const selectedMarker = markersRef.current.find(
-          m => m.data.name === selectedEntry.name && m.data.type === selectedEntry.type
+          m => m.data.name === selectedEntry.name && m.data.ip === selectedEntry.ip
         );
 
         if (selectedMarker) {
@@ -84,7 +70,7 @@ const GoogleMap = ({ markersData, selectedEntry }) => {
 
           setTimeout(() => {
             selectedMarker.marker.content = new PinElement({
-              background: getPinColor(selectedMarker.data.severity),
+              background: '#FF0000', // Reset to default color
             }).element; // Reset to original color after 2 seconds
           }, 2000);
         }
@@ -97,4 +83,4 @@ const GoogleMap = ({ markersData, selectedEntry }) => {
   return <div ref={mapRef} className="map-container"></div>;
 };
 
-export default GoogleMap;
+export default RobotMap;
