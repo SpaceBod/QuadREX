@@ -40,13 +40,48 @@ REX is a cost-effective, autonomous quadruped robot aimed at enhancing disaster 
     git clone https://github.com/SpaceBod/QuadREX.git
     cd QuadREX
     ```
+
 2. **Set up IBM Watson Assistant:**
     - Obtain API credentials from IBM Watson.
     - Configure the credentials in the `watson_config.py` file.
 
 3. **Set up the Web Dashboard:**
-    - Navigate to the `dashboard` directory.
+    - Navigate to the `web-app` directory.
     - Install dependencies: `npm install`.
+
+4. **Install ROS2 and Dependencies:**
+    Follow the ROS2 Humble installation guide from the [ROS2 documentation](https://docs.ros.org/en/humble/Installation.html).
+
+5. **Install Nav2:**
+    ```sh
+    sudo apt update
+    sudo apt install ros-humble-nav2-bringup
+    ```
+
+6. **Install Cartographer:**
+    ```sh
+    sudo apt update
+    sudo apt install ros-humble-cartographer ros-humble-cartographer-ros
+    ```
+
+7. **Install DepthAI:**
+    ```sh
+    # Install necessary ROS2 packages
+    sudo apt update
+    sudo apt install ros-humble-depthai ros-humble-depthai-examples
+    
+    # Set up the OAK-D Lite camera
+    mkdir -p ~/ros2_ws/src
+    cd ~/ros2_ws/src
+    git clone --recurse-submodules https://github.com/luxonis/depthai-ros.git
+    cd ..
+    colcon build --symlink-install
+    source install/setup.bash
+    
+    # Launch DepthAI example
+    ros2 launch depthai_examples stereo_inertial_node.launch.py
+    ```
+
 
 ### Running Simulations
 
@@ -64,3 +99,12 @@ Navigate to the `web-app` directory and run web app:
 cd web-app
 npm start
 ```
+
+### Running Path Planning and Wavefront Simulations
+Navigate to the `navigation_sim` directory and run the path planning and wavefront simulation scripts:
+
+```sh
+cd navigation_sim
+python path_planning_sim.py
+python wavefront_sim.py
+
