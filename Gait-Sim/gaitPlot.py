@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
 from gait import walkGait
 
 gait_planner = walkGait()
@@ -14,8 +13,13 @@ initial_foot_positions = np.array(
     ]
 )
 trajectories = gait_planner.simulateCycle(
-    0.1, 0, 0, step_offset, initial_foot_positions, steps=100
+    0.1, 45, 0, step_offset, initial_foot_positions, steps=100
 )
+
+# Flip the z-axis data
+for trajectory in trajectories:
+    if isinstance(trajectory, dict) and "z" in trajectory:
+        trajectory["z"] = -np.array(trajectory["z"])
 
 # Plotting
 fig, axs = plt.subplots(2, 2, figsize=(12, 10), subplot_kw={"projection": "3d"})
@@ -40,6 +44,10 @@ for i, ax in enumerate(axs.flat):
     ax.set_ylabel("Y position")
     ax.set_zlabel("Z position")
     ax.set_title(f"Foot {i+1} Cycle Trajectory")
+
+    # Flip the z-axis in the plot
+    zlim = ax.get_zlim()
+    ax.set_zlim(zlim[::-1])
 
 # Create a colorbar with a bit of padding from the subplots
 fig.subplots_adjust(right=1.6)  # Adjust the right margin
