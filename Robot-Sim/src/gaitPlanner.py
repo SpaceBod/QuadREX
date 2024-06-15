@@ -1,10 +1,12 @@
 import time
 import numpy as np
 
+
 class TrotGait:
     """
     Gait planner for moving all feet.
     """
+
     def __init__(self):
         self.bodyToFeet = np.zeros([4, 3])
         self.phi = 0.0
@@ -26,7 +28,9 @@ class TrotGait:
         float: Bezier curve value.
         """
         n = 9
-        return point * self.binomialCoeff(n, k) * np.power(t, k) * np.power(1 - t, n - k)
+        return (
+            point * self.binomialCoeff(n, k) * np.power(t, k) * np.power(1 - t, n - k)
+        )
 
     def binomialCoeff(self, n, k):
         """
@@ -40,7 +44,7 @@ class TrotGait:
         float: Binomial factor.
         """
         return np.math.factorial(n) / (np.math.factorial(k) * np.math.factorial(n - k))
-    
+
     def calculate_stance(self, phiSt, V, angle):
         """
         Calculates the stance phase for a foot.
@@ -77,9 +81,19 @@ class TrotGait:
         """
         c = np.cos(np.deg2rad(angle))
         s = np.sin(np.deg2rad(angle))
-        X = np.abs(V) * c * np.array([-0.05, -0.06, -0.07, -0.07, 0.0, 0.0, 0.07, 0.07, 0.06, 0.05])
-        Y = np.abs(V) * s * np.array([0.05, 0.06, 0.07, 0.07, 0.0, -0.0, -0.07, -0.07, -0.06, -0.05])
-        Z = np.abs(V) * np.array([0.0, 0.0, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.0, 0.0])
+        X = (
+            np.abs(V)
+            * c
+            * np.array([-0.05, -0.06, -0.07, -0.07, 0.0, 0.0, 0.07, 0.07, 0.06, 0.05])
+        )
+        Y = (
+            np.abs(V)
+            * s
+            * np.array([0.05, 0.06, 0.07, 0.07, 0.0, -0.0, -0.07, -0.07, -0.06, -0.05])
+        )
+        Z = np.abs(V) * np.array(
+            [0.0, 0.0, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.0, 0.0]
+        )
         swingX = 0.0
         swingY = 0.0
         swingZ = 0.0
@@ -115,21 +129,27 @@ class TrotGait:
         if phi <= stepOffset:
             phiStance = phi / stepOffset
             stepXLong, stepYLong, stepZLong = self.calculate_stance(phiStance, V, angle)
-            stepXRot, stepYRot, stepZRot = self.calculate_stance(phiStance, Wrot, circleTrajectory)
+            stepXRot, stepYRot, stepZRot = self.calculate_stance(
+                phiStance, Wrot, circleTrajectory
+            )
         else:
             phiSwing = (phi - stepOffset) / (1 - stepOffset)
-            stepXLong, stepYLong, stepZLong = self.calculate_bezier_swing(phiSwing, V, angle)
-            stepXRot, stepYRot, stepZRot = self.calculate_bezier_swing(phiSwing, Wrot, circleTrajectory)
+            stepXLong, stepYLong, stepZLong = self.calculate_bezier_swing(
+                phiSwing, V, angle
+            )
+            stepXRot, stepYRot, stepZRot = self.calculate_bezier_swing(
+                phiSwing, Wrot, circleTrajectory
+            )
         if centerToFoot[1] > 0:
             if stepXRot < 0:
-                self.alpha = -np.arctan2(np.sqrt(stepXRot ** 2 + stepYRot ** 2), r)
+                self.alpha = -np.arctan2(np.sqrt(stepXRot**2 + stepYRot**2), r)
             else:
-                self.alpha = np.arctan2(np.sqrt(stepXRot ** 2 + stepYRot ** 2), r)
+                self.alpha = np.arctan2(np.sqrt(stepXRot**2 + stepYRot**2), r)
         else:
             if stepXRot < 0:
-                self.alpha = np.arctan2(np.sqrt(stepXRot ** 2 + stepYRot ** 2), r)
+                self.alpha = np.arctan2(np.sqrt(stepXRot**2 + stepYRot**2), r)
             else:
-                self.alpha = -np.arctan2(np.sqrt(stepXRot ** 2 + stepYRot ** 2), r)
+                self.alpha = -np.arctan2(np.sqrt(stepXRot**2 + stepYRot**2), r)
         coord = np.empty(3)
         coord[0] = stepXLong + stepXRot
         coord[1] = stepYLong + stepYRot
@@ -167,7 +187,7 @@ class TrotGait:
             Wrot,
             np.squeeze(np.asarray(bodyToFeet_[0, :])),
             dutyCycle * np.exp(stepAsym),
-        )  
+        )
         self.bodyToFeet[0, 0] = bodyToFeet_[0, 0] + stepCoord[0]
         self.bodyToFeet[0, 1] = bodyToFeet_[0, 1] + stepCoord[1]
         self.bodyToFeet[0, 2] = bodyToFeet_[0, 2] + stepCoord[2]
