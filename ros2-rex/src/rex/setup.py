@@ -10,7 +10,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('lib/' + package_name, ['rex/tracklets_parser.py', 'rex/controller.py', 'rex/control_service.py']),
+        ('lib/' + package_name, ['rex/detect_continuous.py', 'rex/human_detect.py', 'rex/tracklets_parser.py', 'rex/controller.py', 'rex/control_service.py']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -24,6 +24,8 @@ setup(
             'tracklets_parser = rex.tracklets_parser:main',
             'controller = rex.controller:main',
             'control_service = rex.control_service:main',
+            'human_detect = rex.human_detect:main',
+            'detect_continuous = rex.detect_continuous:main',
         ],
     },
 )
