@@ -1,5 +1,4 @@
 import os
-from colorama import Fore, Style, init
 import hashlib
 import numpy as np
 import pvporcupine
@@ -8,6 +7,7 @@ import pygame
 from dotenv import load_dotenv
 import speech_recognition as sr
 import requests
+from colorama import Fore, Style, init
 
 init(autoreset=True)
 
@@ -58,12 +58,10 @@ class PorcupineWakeWordDetector:
             pygame.time.Clock().tick(10)
 
     def cleanup(self):
-        if self.porcupine is not None:
-            self.porcupine.delete()
-        if self.audio_stream is not None:
-            self.audio_stream.close()
-        if self.pa is not None:
-            self.pa.terminate()
+        self.audio_stream.stop_stream()
+        self.audio_stream.close()
+        self.pa.terminate()
+        self.porcupine.delete()
 
 
 class GoogleSpeechToText:
@@ -71,22 +69,21 @@ class GoogleSpeechToText:
         self.recognizer = sr.Recognizer()
 
     def listen_and_transcribe(self):
-        with sr.Microphone() as source:
-            print(Fore.GREEN + "[READY] Listening for speech...")
-            audio = self.recognizer.listen(source)
-            self.play_sound("assets/sfx/beep.mp3")
-            try:
-                text = self.recognizer.recognize_google(audio)
-                print(Fore.BLUE + "[INPUT] " + text)
-                return text
-            except sr.UnknownValueError:
-                print(Fore.RED + "Google Speech Recognition could not understand audio")
-            except sr.RequestError as e:
-                print(
-                    Fore.RED
-                    + f"Could not request results from Google Speech Recognition service; {e}"
-                )
-
+        try:
+            with sr.Microphone() as source:
+                print("[READY] Listening for speech...")
+                self.recognizer.adjust_for_ambient_noise(source)
+                audio = self.recognizer.listen(source)
+                try:
+                    spoken_text = self.recognizer.recognize_google(audio)
+                    print(f"You said: {spoken_text}")
+                    return spoken_text
+                except sr.UnknownValueError:
+                    print("Google Speech Recognition could not understand audio")
+                except sr.RequestError as e:
+                    print(f"Could not request results from Google Speech Recognition service; {e}")
+        except Exception as e:
+            print(f"Error accessing microphone: {e}")
         return None
 
     def play_sound(self, file_path):
@@ -141,29 +138,3 @@ class ElevenLabsTTS:
 
 def hash_text(text):
     return hashlib.md5(text.encode()).hexdigest()
-
-
-if __name__ == "__main__":
-    keyword_paths = ["./assets/models/Help-me_en_raspberry-pi_v3_0_0.ppn", "./assets/models/Hey-Rex_en_raspberry-pi_v3_0_0.ppn"]
-    detector = PorcupineWakeWordDetector(keyword_paths=keyword_paths)
-
-    try:
-        while True:
-            detector.listen_for_wake_word()
-
-            stt = GoogleSpeechToText()
-            spoken_text = stt.listen_and_transcribe()
-
-            if spoken_text:
-                tts = ElevenLabsTTS()
-                hashed_filename = hash_text(spoken_text)
-                output_file = os.path.join(tts.output_folder, f"{hashed_filename}.mp3")
-
-                if not os.path.exists(output_file):
-                    tts.generate_audio(spoken_text, output_file)
-                tts.play_audio(output_file)
-
-            print(Fore.YELLOW + "[END] Conversation ended..")
-    except KeyboardInterrupt:
-        print(Fore.RED + "\n[EXIT] Program terminated by user.")
-        detector.cleanup()

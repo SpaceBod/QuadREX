@@ -2,9 +2,8 @@ import os
 from dotenv import load_dotenv
 from ibm_watson import AssistantV2
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-from text2speech import ElevenLabsTTS, hash_text
+from wakeWordDetection import PorcupineWakeWordDetector, GoogleSpeechToText, ElevenLabsTTS, hash_text
 import requests
-
 
 class WatsonAssistant:
     def __init__(self):
@@ -99,16 +98,29 @@ class WatsonAssistant:
 
         return session_id
 
-    def interact(self):
-        print("Type 'exit' to end the conversation.")
+    def interact(self, spoken_text):
         session_id = self.assistant.create_session(
             assistant_id=self.assistant_id
         ).get_result()["session_id"]
 
         try:
             while True:
-                user_input = input("You: ")
-                if user_input.lower() == "exit":
+                if spoken_text is None:
+                    retry_message = "I didn't catch that. Could you please repeat?"
+                    hashed_filename = hash_text(retry_message)
+                    output_file = os.path.join(
+                        self.tts.output_folder, f"{hashed_filename}.mp3"
+                    )
+
+                    if not os.path.exists(output_file):
+                        self.tts.generate_audio(retry_message, output_file)
+                    self.tts.play_audio(output_file)
+
+                    stt = GoogleSpeechToText()
+                    spoken_text = stt.listen_and_transcribe()
+                    continue
+
+                if spoken_text.lower() == "exit":
                     print("Ending conversation.")
                     break
 
@@ -117,7 +129,7 @@ class WatsonAssistant:
                     session_id=session_id,
                     input={
                         "message_type": "text",
-                        "text": user_input,
+                        "text": spoken_text,
                         "options": {"return_context": True},
                     },
                 ).get_result()
@@ -158,12 +170,31 @@ class WatsonAssistant:
                     for action in response["output"]["actions"]:
                         print(f"Action: {action['name']} - {action['parameters']}")
 
+                # Listen for next user input
+                stt = GoogleSpeechToText()
+                spoken_text = stt.listen_and_transcribe()
+
         finally:
             self.assistant.delete_session(
                 assistant_id=self.assistant_id, session_id=session_id
             )
 
-
 if __name__ == "__main__":
-    assistant = WatsonAssistant()
-    assistant.interact()
+    detector = PorcupineWakeWordDetector(
+        keyword_paths=["./assets/models/Help-me_en_raspberry-pi_v3_0_0.ppn", "./assets/models/Hey-Rex_en_raspberry-pi_v3_0_0.ppn"]
+    )
+
+    try:
+        while True:
+            detector.listen_for_wake_word()
+
+            stt = GoogleSpeechToText()
+            spoken_text = stt.listen_and_transcribe()
+
+            if spoken_text:
+                assistant = WatsonAssistant()
+                assistant.interact(spoken_text)
+
+    except KeyboardInterrupt:
+        print(Fore.RED + "\n[EXIT] Program terminated by user.")
+        detector.cleanup()
