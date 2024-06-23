@@ -144,7 +144,7 @@ def hash_text(text):
 
 
 if __name__ == "__main__":
-    keyword_paths = ["./assets/models/windows.ppn", "./assets/models/windows-rex.ppn"]
+    keyword_paths = ["./assets/models/Help-me_en_raspberry-pi_v3_0_0.ppn", "./assets/models/Hey-Rex_en_raspberry-pi_v3_0_0.ppn"]
     detector = PorcupineWakeWordDetector(keyword_paths=keyword_paths)
 
     try:
