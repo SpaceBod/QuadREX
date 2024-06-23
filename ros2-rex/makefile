@@ -28,20 +28,41 @@ compile:
 	@colcon build
 
 # Run Lidar Node
-lidar-run:
+lidar:
 	@echo -e "${MAGENTA}Running LD19-LIDAR...${NC}"
-	@ros2 launch ldlidar_node ldlidar.launch.py
+	@ros2 launch ldlidar_node ldlidar_with_mgr.launch.py
 
-# Activate Lidar Node
-lidar-on:
-	@echo -e "${MAGENTA}Activating LD19-LIDAR...${NC}"
-	@ros2 lifecycle set /ldlidar_node configure
-	@ros2 lifecycle set /ldlidar_node activate
-	@ros2 launch cartographer_ros lidar_launch.py
-# Clean target
-clean:
-	@echo -e "${MAGENTA}Cleaning up...${NC}"
-	# Add your clean-up commands here
+camera:
+	@echo -e "${MAGENTA}Running OAK-D LITE...${NC}"
+	@ros2 launch depthai_examples mobile_tracker.launch.py camera_model:=OAK-D-LITE monoResolution:=480p
+
+tracker:
+	@echo -e "${MAGENTA}Running Tracker...${NC}"
+	@ros2 run rex tracklets_parser	
+
+human:
+	@echo -e "${MAGENTA}Running Human Detection...${NC}"
+	ros2 run rex human_detect
+
+control:
+	@echo -e "${MAGENTA}Starting REX Control Service...${NC}"
+	@ros2 run rex control_service
+
+# Activate Navigation Node
+nav:
+	@echo -e "${MAGENTA}Launching Navigation...${NC}"
+	@ros2 launch nav navigation.launch.py
+
+# Activate Cartographer Node
+carto:
+	@echo -e "${MAGENTA}Launching Cartographer...${NC}"
+	@ros2 launch nav cartographer.launch.py
+
+# Run RViz2
+rviz:
+	@echo -e "${MAGENTA}Launch RViz...${NC}"
+	@ros2 launch nav rviz.launch.py
+
 rex:
 	@echo -e "${MAGENTA}Buliding package for REX...${NC}"
 	@colcon build --packages-select rex
